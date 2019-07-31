@@ -1,0 +1,457 @@
+---
+title: "Epidemiology of helminth and protozoan parasites in Dosso Region, Niger"
+author: "Jacqueline Maasch & Kristen Aiemjoy"
+date: "7/31/2019"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+
+Load packages: tidyverse, xtable, stargazer, ggthemes, RColorBrewer, etc.
+```{r packages, echo = FALSE, message = FALSE}
+library(tidyverse)
+library(lubridate)
+library(epiR)
+library(scales)
+library(bazar)
+library(gmodels)
+library(xtable)
+library(stargazer)
+library(ggthemes)
+
+#For anthropometry and z-scores.
+library(zscorer)
+library(viridis)
+library(ggridges)
+library(lme4)
+library(lmerTest)
+
+#For maps.
+library(maps)
+library(mapdata)
+library(mapproj)
+library(spData)
+library(grid)
+library(sp)
+library(ggmap)
+library(ggthemes)
+```
+
+Set working directories. Set one directory to comment depending on who is working on the file.
+```{r directory}
+# Kristen: 
+#setwd("~/Dropbox/Niger parasite epi/Data/Anthro data merge")
+
+# Jaqueline:
+setwd("/Users/razel/Dropbox/Niger parasite epi/Data/")
+```
+
+Load data. Original Giardia merging was done in Stata, later this file was merged with anthropometric data from Salesforce and Schisto data. Took clean data from swab comparison manuscript. Merged script is called "GiardiaAnthroShistoMerge.R".
+```{r data}
+d <- read.csv("~/Dropbox/Niger parasite epi/Data/Anthro data merge/GiardiaAnthroSchistoMerged_07.16.19.csv") %>%
+  rowwise() %>%
+  mutate(HeightM = median(Height.1, Height.2, Height.3), 
+         WeightM = median(Weight.1, Weight.2, Weight.3)) %>%
+  ungroup() %>%
+  mutate(WeightM.kg = ifelse(Weight.Unit == "Pounds", WeightM/2.205, WeightM),
+         sex = as.numeric(fct_recode(gender, "1"="MALE", "2"="FEMALE")),
+         standing = fct_recode(Height.Method, standing="HEIGHT", supine= "LENGTH"),
+         ageD = ageM*30,
+         loosewatMother = fct_collapse(sampleconsistencymother,
+                                       "loose/watery" = c("Watery", "Fluffy With Ragged Edges"),
+                                       "formed" = c("Lumpy", "Smooth Soft", "Separate Hard Lumps")))
+```
+
+Anthropometry.
+```{r anthro}
+#Weight for height.
+d <- addWGSR(data = d, sex = "sex", firstPart = "WeightM.kg", 
+               secondPart = "HeightM", index = "wfh", standing="standing")
+
+#Weight for age.
+d <- addWGSR(data = d, sex = "sex", firstPart = "WeightM.kg", 
+               secondPart = "ageD", index = "wfa")
+
+#Height for age.
+d <- addWGSR(data = d, sex = "sex", firstPart = "HeightM", 
+               secondPart = "ageD", index = "hfa", standing="standing")
+
+
+# svy <- svy %>%
+#   mutate(ZCat = cut(wfhz, c(-Inf,-3, -2, -1, 0, Inf), labels=c("<-3", "-3,-2", "-2,-1", "-1,0", "0+")) ) 
+```
+
+Child growth z-score results 1.
+```{r zscore1}
+d <- d %>%
+  mutate(AgeFactor = factor(ageY),
+         AgeCat = cut(ageY, breaks= c(0, 2, 5), 
+                             right=FALSE, labels = c("<2 yrs", "2-<5 yrs")),
+         GiardiaPos = factor(truePos, labels = c("Negative", "Positive")) )
+
+#high density infection cutoffs
+d2 <- d %>%
+  mutate(Above75 = as.factor(ctstoolMax >= quantile(ctstoolMax, 0.75, na.rm = T)),
+         Above50 = as.factor(ctstoolMax >= quantile(ctstoolMax, 0.50, na.rm = T)))
+
+ggplot(d, aes(x = hfaz, y = GiardiaPos)) +
+   geom_density_ridges_gradient(
+     #USE SCALE to change how much the distributions overlap
+     aes(fill = ..x..), scale = 2.5, size = 0.3, quantile_lines = TRUE, quantiles = 2) +
+   scale_fill_gradientn(
+     colours = c("#0D0887FF", "#CC4678FF", "#F0F921FF"),
+     name = "Z-score"
+     ) +
+   #theme_minimal() + 
+    theme_ridges(grid = FALSE, center_axis_labels = TRUE) +
+   labs(x="Height-for-Age", y="Giardia") +
+   #labs(x="", y="") + 
+   facet_wrap(~AgeCat, ncol=1) + 
+   theme( strip.background = element_rect(fill="white") ) 
+ 
+ ggplot(d, aes(x = wfaz, y = GiardiaPos)) +
+   geom_density_ridges_gradient(
+     #USE SCALE to change how much the distributions overlap
+     aes(fill = ..x..), scale = 2.5, size = 0.3, quantile_lines = TRUE, quantiles = 2) +
+   scale_fill_gradientn(
+     colours = c("#0D0887FF", "#CC4678FF", "#F0F921FF"),
+     name = "Z-score"
+     ) +
+   #theme_minimal() + 
+    theme_ridges(grid = FALSE, center_axis_labels = TRUE) +
+   labs(x="Weight-for-Age", y="Giardia") +
+   #labs(x="", y="") + 
+   facet_wrap(~AgeCat, ncol=1) + 
+   theme( strip.background = element_rect(fill="white") ) 
+
+ ggplot(d, aes(x = wfhz, y = GiardiaPos)) +
+   geom_density_ridges_gradient(
+     #USE SCALE to change how much the distributions overlap
+     aes(fill = ..x..), scale = 2.5, size = 0.3, quantile_lines = TRUE, quantiles = 2) +
+   scale_fill_gradientn(
+     colours = c("#0D0887FF", "#CC4678FF", "#F0F921FF"),
+     name = "Z-score"
+     ) +
+   #theme_minimal() + 
+    theme_ridges(grid = FALSE, center_axis_labels = TRUE) +
+   labs(x="Weight-for-Height", y="Giardia") +
+   #labs(x="", y="") + 
+   facet_wrap(~AgeCat, ncol=1) + 
+   theme( strip.background = element_rect(fill="white") ) 
+```
+
+Child growth z-score results 2.
+```{r zscore2}
+mean(d$hfaz)
+sd(d$hfaz)
+
+mean(d$wfaz)
+sd(d$wfaz)
+
+round(mean(d$wfhz), 2)
+round(sd(d$wfhz), 3)
+
+t.test(hfaz~truePos, data=d)
+t.test(wfaz~truePos, data=d)
+t.test(wfhz~truePos, data=d)
+
+summary(lmer(hfaz ~ truePos + (1|vilID), data = d))
+summary(lmer(wfhz ~ truePos + (1|vilID), data = d))
+```
+
+General prevalence figures.
+```{r prevSmooth}
+smoothAgeSex <- ggplot(d, aes(x = ageM, y = as.numeric(GiardiaPos)-1)) + 
+  geom_smooth(aes(color = gender, fill = gender)) + 
+  #scale_color_viridis(discrete = TRUE, option = "D")+
+  #scale_fill_viridis(discrete = TRUE) +
+  theme_classic() +
+  theme(legend.position = "none",
+        strip.text.x = element_text(size = 12),
+        axis.line = element_line(size = 0.5)) +
+  scale_y_continuous(breaks = seq(0,1, .1), 
+                     expand = c(0,0), 
+                     labels = scales::percent, 
+                     minor_breaks = NULL) +
+  scale_x_continuous(limits = c(0,60), 
+                     breaks = seq(0,55,5), 
+                     expand = c(0,0), 
+                     minor_breaks = NULL) +
+  scale_fill_manual(values = c("#C8C8A9", "#F9CDAD"),
+                    labels = c("Female", "Male")) +
+  scale_color_manual(name = "Specimen type", 
+                     labels = c("Female", "Male"), 
+                     values = c("#83AF9B", "#CF6A6E")) +
+  coord_cartesian(ylim = c(0,1)) +
+  labs(y ="Infection prevalence\n", 
+       x = "\nChild age in months", 
+       color = "", fill = "") + 
+  facet_grid(~gender)
+
+smoothAgeSex
+
+#ggsave("/Users/razel/Dropbox/Niger parasite epi/Data/Exported figures/prevSmooth.jpg", plot = last_plot(), width = 12, height = 6)
+
+smoothAge <- ggplot(d, aes(x = ageM, y = as.numeric(GiardiaPos)-1)) + 
+  geom_smooth() + 
+  #scale_color_viridis(discrete = TRUE, option = "D")+
+  #scale_fill_viridis(discrete = TRUE) +
+  theme_minimal() +
+  scale_y_continuous(breaks = seq(0,1, .1), 
+                     expand = c(0,0), 
+                     labels = scales::percent, 
+                     minor_breaks = NULL) +
+  scale_x_continuous(limits = c(0,60), 
+                     breaks = seq(0,60,5), 
+                     expand = c(0,0), 
+                     minor_breaks = NULL) +
+  coord_cartesian(ylim = c(0,1)) +
+  labs(y = "Giardia prevalence\n", x = "\nAge in Months", color = "", fill = "") 
+
+smoothAge
+```
+
+Parasite prevalence table.
+```{r prevTable, results = "asis"}
+#Overall.
+dPrev <- read.csv("CSV files/niger_epi_prevalence_table.csv")
+
+stargazer(dPrev, type = "latex", summary = FALSE, rownames = TRUE, column.labels = c("Species", "qPCR positive", "qPCR negative", "Percent positive"), title = "Prevalence of enteric parasites among young children in Dosso Region, Niger")
+
+#Disaggregating age and sex.
+dPrevAge <- read.csv("CSV files/niger_epi_prevalence_age.csv")
+
+stargazer(dPrevAge, type = "latex", summary = FALSE, rownames = TRUE, column.labels = c("Species", "qPCR positive", "qPCR negative", "Percent positive"), title = "Prevalence of enteric parasites among young children in Dosso Region, Niger")
+```
+
+Age/prevalence sex results.
+```{r ageSexData}
+d %>% group_by(ageY, gender) %>%
+  summarise(prev = mean(truePos), 
+            n = n(),
+            se = sd(truePos)/sqrt(n),
+            lCI = prev-1.96*se, 
+            uCI = prev+1.96*se)
+
+d %>% group_by(ageY) %>%
+  summarise(prev = mean(truePos), 
+            n = n(),
+            se = sd(truePos)/sqrt(n),
+            lCI = prev-1.96*se, 
+            uCI = prev+1.96*se)
+```
+Bar charts of prevalence by age and sex.
+```{r bar}
+dAgeSex <- d %>%
+  mutate(age = as.factor(ageY)) %>%
+  mutate(sex = as.factor(gender)) %>%
+  select(truePos, age, sex)
+
+dAgeSexPrev <- d %>% 
+  group_by(ageY) %>%
+  summarise(prev = (mean(truePos))*100,
+            n = n(),
+            se = sd(truePos)/sqrt(n),
+            lCI = prev-1.96*se, 
+            uCI = prev+1.96*se)
+
+tabAgePos <- xtabs(~ truePos + age, data = dAgeSex)
+tabAgePos
+
+tabAgeSex <- xtabs(~ sex + age, data = dAgeSex)
+tabAgeSex
+
+barAgeSex <- ggplot(dAgeSex, aes(x = age, y = truePos, fill = sex)) + 
+  geom_bar(stat = "identity") +
+  theme_hc() +
+  theme(axis.text = element_text(size = 8), 
+        axis.title = element_text(size = 10), 
+        plot.title = element_text(size = 10, 
+                                    face = "bold", 
+                                    hjust = 0.5), 
+        legend.title = element_text(size = 10),
+        legend.direction = "vertical",
+        legend.position = c(0.01, 0.95),
+        panel.grid.major.x = element_blank()) +
+  labs (y= "Number infections\n", 
+        x = "\nChild age in years", 
+        fill = "", 
+        title = "") +
+  scale_fill_manual(values = c("#B36569", "#5F545C"), 
+                    label = c("Female", "Male")) +
+  #geom_text(aes(label = c("6/11", "10/20", "14/17", "9/11", "18/25"))) 
+  annotate("text", x = 1, y = 7, label = "6/11\n54.5%", size = 3) + 
+  annotate("text", x = 2, y = 11, label = "10/20\n50.0%", size = 3) + 
+  annotate("text", x = 3, y = 15, label = "14/17\n82.4%", size = 3) + 
+  annotate("text", x = 4, y = 10, label = "9/11\n81.8%", size = 3) + 
+  annotate("text", x = 5, y = 19, label = "18/25\n72.0%", size = 3)
+
+barAgeSex
+
+#ggsave("/Users/razel/Dropbox/Niger parasite epi/Data/Exported figures/pos_age_sex.jpg", plot = last_plot(), width = 6, height = 6)
+
+barAgeSexBW <- ggplot(dAgeSex, aes(x = age, y = truePos, fill = sex)) + 
+  geom_bar(stat = "identity") +
+  theme_hc() +
+  theme(axis.text = element_text(size = 8), 
+        axis.title = element_text(size = 10), 
+        plot.title = element_text(size = 10, 
+                                    face = "bold", 
+                                    hjust = 0.5), 
+        legend.title = element_text(size = 10),
+        legend.direction = "vertical",
+        legend.position = c(0.01, 0.95),
+        panel.grid.major.x = element_blank()) +
+  labs (y= "Number infections\n", 
+        x = "\nChild age in years", 
+        fill = "", 
+        title = "") +
+  scale_fill_manual(values = c("#d9d9d9", "#969696"), label = c("Female", "Male")) +
+  #geom_text(aes(label = c("6/11", "10/20", "14/17", "9/11", "18/25"))) 
+  annotate("text", x = 1, y = 7, label = "6/11\n54.5%", size = 3) + 
+  annotate("text", x = 2, y = 11, label = "10/20\n50.0%", size = 3) + 
+  annotate("text", x = 3, y = 15, label = "14/17\n82.4%", size = 3) + 
+  annotate("text", x = 4, y = 10, label = "9/11\n81.8%", size = 3) + 
+  annotate("text", x = 5, y = 19, label = "18/25\n72.0%", size = 3) 
+
+barAgeSexBW 
+
+#ggsave("/Users/razel/Dropbox/Niger parasite epi/Data/Exported figures/pos_age_sex_BW.jpg", plot = last_plot(), width = 6, height = 6)
+```
+
+Stool consistency by the modified Bristol Stool Form Scale for children (mBSFS-C).
+```{r mBSFS}
+addmargins(table(d$truePos, d$loosewat1))
+
+addmargins(table(d$truePos, d$loosewatMother))
+
+dDiar <- d %>%
+  select(personID, truePos, loosewat1, loosewatMother)
+
+#11/84 children had loose/watery stool = 13.1%
+#73/84 children had formed stool = 86.9%
+#37/84 mothers had loose watery stool = 44.0%
+#47/84 mothers had formed stool = 56.0%
+
+tabDiarFam <- xtabs(~loosewat1 + loosewatMother, data = dDiar)
+tabDiarFam
+
+#46/84 child:formed/mother:formed = 54.8%
+#27/84 child:formed/mother:loose-watery = 32.1%
+#10/84 child:loose-watery/mother:loose-watery = 11.9%
+#1/84 child:loose-watery/mother:formed = 1.2%
+
+#child:mother agree = 66.7%
+#child:mother disagree = 33.3%
+
+tabDiarPos <- xtabs(~ truePos+ loosewat1, data = dDiar)
+tabDiarPos
+
+#51/57 Giardia positives had formed stool = 89.5%
+#32/51 of their mothers had formed stool = 62.7%
+#6/57 Giardia positves had loose/watery stool = 10.5%
+#6/6 of their mothers had loose/watery stool = 100%
+```
+
+Study population characteristics.
+```{r studyPop, results = "asis"}
+#All villages.
+levels(d$vilID)
+
+#Mean age in months.
+summary(d$ageM)
+
+#Mean/median age in years.
+summary(d$ageY)
+
+#Number male and female.
+table(d$gender)
+
+#Giardia prevalence.
+Table1_a <- d %>%
+  group_by(truePos) %>%
+  summarize(nChildren = n(), 
+    nVil = length(unique(vilID)), 
+    MedianAge = round(median(ageY, na.rm = T), 2), 
+    Age.p25 = round(quantile(ageY, na.rm =T,  probs=.25), 2),
+    Age.p75 = round(quantile(ageY, na.rm = T, probs=.75), 2),
+    prop.female=round(100*mean(gender == "FEMALE",  na.rm=TRUE),1),
+    nFemale = sum(gender=="FEMALE", na.rm=TRUE)) %>%
+  mutate(
+    Female = paste(nFemale," (",prop.female,"% )", sep=""),
+    #N_Vil = paste (nChildren, " (",nPools , ")", sep=""),
+    MedianAge = paste(MedianAge, " (", Age.p25, "-", Age.p75 , ")", sep="")) %>%
+  select(nChildren, nVil, MedianAge, Female) %>%
+  t %>% #transpose
+  as.data.frame() %>%
+  `colnames<-`(c("Negative", "Positive")) 
+  #select(Watery, Loose, Smooth, Lumpy, Pellets)
+
+Table1_b <- d %>%
+    summarize(nChildren = n(), 
+    nVil = length(unique(vilID)), 
+    MedianAge = round(median(ageY, na.rm = T), 2), 
+    Age.p25 = round(quantile(ageY, na.rm =T,  probs=.25), 2),
+    Age.p75 = round(quantile(ageY, na.rm = T, probs=.75), 2),
+    prop.female=round(100*mean(gender == "FEMALE",  na.rm=TRUE),1),
+    nFemale = sum(gender=="FEMALE", na.rm=TRUE)) %>%
+    mutate(
+    Female = paste(nFemale," (",prop.female,"% )", sep=""),
+    MedianAge = paste(MedianAge, " (", Age.p25, "-", Age.p75 , ")", sep="")) %>%
+    select(nChildren, nVil, MedianAge, Female) %>%
+    t %>% #transpose
+    as.data.frame() %>%
+    `colnames<-`(c("Overall")) 
+
+Table1 <- cbind(Table1_a, Table1_b) %>%
+  select(Negative, Positive, Overall)
+  row.names(Table1) <- c("N() Children", "N() Communities", "Median age (IQR)", "N(%) female")
+  colnames(Table1) <- c("PCR negative (Stool)", "PCR positive (Stool)", "Overeall")
+
+Table1  
+  
+#Table1 in stargazer
+stargazer(Table1, type = "latex", summary = FALSE, rownames = FALSE, column.labels = c("Negative", "Positive", "Total"), title = "Population summary by detection of {\\emph{Giardia intesinalis}} in bulk stool")
+
+#Table1 in stargazer -- transposed
+Table1T <- t(Table1)
+stargazer(Table1T, type = "latex", summary = FALSE, rownames = FALSE, column.labels = c("Negative", "Positive", "Total"), title = "Population summary by detection of {\\emph{Giardia intesinalis}} in bulk stool")
+```
+
+Giardia prevalence by village.
+```{r village}
+d %>% group_by(vilID) %>%
+  summarise(prev = mean(truePos), 
+            n = n(),
+            se = sd(truePos)/sqrt(n),
+            lCI = prev-1.96*se, 
+            uCI = prev+1.96*se)
+
+######
+
+addmargins(table(d$vilID, d$truePos))
+
+CrossTable(d$vilID, d$truePos, prop.r = T, prop.c = F, prop.t = F, prop.chisq = F)
+
+posVil <- as.data.frame(addmargins(table(d$vilID, d$truePos)))
+vilNeg <- posVil[1:10, c(1, 3)]
+vilPos <- posVil[11:20, c(1, 3)]
+vilSum <- posVil[21:30, c(1, 3)]
+vilPosNeg <- left_join(vilNeg, vilPos, by = "Var1")
+vilPosNegSum <- left_join(vilPosNeg, vilSum, by = "Var1")
+colnames(vilPosNegSum) <- c("Village", "Negative", "Positive", "Total")
+vilPosNegSum = mutate(vilPosNegSum, 
+                percentPos = (Positive / Total)*100)
+colnames(vilPosNegSum) <- c("Village", "Negative", "Positive", "Total", "Percent Positive")
+vilPosNegSum <- vilPosNegSum[,c(1,2,3,5,4)]
+
+stargazer(vilPosNegSum, type = "latex", summary = FALSE, rownames = FALSE,
+          title = "Real-time PCR detection of \textit{Giardia duodenalis} by village")
+```
+
+Schisto positive individual.
+```{r schisto}
+dSchisto <- d %>%
+  filter(St1_schisto_ct != 19.41028)
+```
