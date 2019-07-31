@@ -1,0 +1,134 @@
+\documentclass[10pt,letterpaper]{article}
+
+%PACKAGES
+\usepackage[euler]{textgreek}
+\usepackage{caption}
+\usepackage{geometry}
+\usepackage{makecell}
+
+%SETUP
+%\captionsetup{justification = raggedright, singlelinecheck = false} %left justify caption
+\captionsetup{justification = centering, singlelinecheck = false} %center caption
+\geometry{legalpaper, portrait, margin=0.75in}
+\begin{document}
+
+%NOTES:
+%To left align columns in stargazer output, find the "ccc" string in \begin{tabular} and change it to "lll."
+
+%%%%%%%%%%%%%%%%%%%%%
+%TABLES
+%%%%%%%%%%%%%%%%%%%%%
+
+%PREV BY SPECIES AND AGE
+\begin{table}[!htbp] \centering 
+  \caption{Prevalence of intestinal parasites among young children in Boboye Department, Dosso Region, Niger} 
+  \label{} 
+\begin{tabular}{@{\extracolsep{5pt}} llllllll} 
+\\[-1.8ex]\hline 
+\hline \\[-1.8ex] 
+  &  &  & Age of child &  &  &  \\ 
+\hline \\[-1.8ex] 
+  & \textless  1 year & 1 year & 2 years & 3 years & 4 years & Total \\ 
+\hline \\[-1.8ex] 
+\textit{N} children & 11 & 20 & 17 & 11 & 25 & 84 \\ 
+\textit{N} female (\%) & 7 (63.6\%) & 7 (35.0\%) & 11 (64.7\%) & 9 (81.8\%) & 16 (64.0\%) & 50 (59.5\%) \\ 
+  &  &  &  &  &  &  \\ 
+Helminths &  &  &  &  &  &  \\ 
+\textit{     Ancylostoma duodenale} & 0 (0\%) & 0 (0\%) & 0 (0\%) & 0 (0\%) & 0 (0\%) & 0 (0\%) \\ 
+\textit{     Ascaris lumbricoides} & 0 (0\%) & 0 (0\%) & 0 (0\%) & 0 (0\%) & 0 (0\%) & 0 (0\%) \\ 
+\textit{     Necator americanus} & 0 (0\%) & 0 (0\%) & 0 (0\%) & 0 (0\%) & 0 (0\%) & 0 (0\%) \\ 
+\textit{     Schistosoma haematobium} & 0 (0\%) & 0 (0\%) & 0 (0\%) & 0 (0\%) & 1 (1.19\%) & 1 (1.19\%) \\ 
+\textit{     Schistosoma mansoni} & 0 (0\%) & 0 (0\%) & 0 (0\%) & 0 (0\%) & 0 (0\%) & 0 (0\%) \\ 
+\textit{     Trichuris trichiura} & 0 (0\%) & 0 (0\%) & 0 (0\%) & 0 (0\%) & 0 (0\%) & 0 (0\%) \\ 
+  &  &  &  &  &  &  \\ 
+Protozoa &  &  &  &  &  &  \\ 
+\textit{     Entamoeba histolytica} & 0 (0\%) & 0 (0\%) & 0 (0\%) & 0 (0\%) & 0 (0\%) & 0 (0\%) \\ 
+\textit{     Giardia duodenalis} & 6 (54.5\%) & 10 (50.0\%) & 14 (84.4\%) & 9 (81.8\%) & 18 (72.0\%) & 57 (67.86\%) \\ 
+\hline \\[-1.8ex] 
+\end{tabular} 
+\end{table} 
+
+
+%PREV BY SPECIES
+\begin{table}[!htbp] \centering 
+  \caption{Prevalence of enteric parasites among young children in Dosso Region, Niger} 
+  \label{} 
+\begin{tabular}{@{\extracolsep{5pt}} lllll} 
+\\[-1.8ex]\hline 
+\hline \\[-1.8ex] 
+Species & qPCR negative & qPCR positive & Percent positive \\ 
+\hline \\[-1.8ex] 
+Helminths & $$ & $$ & $$ \\ 
+\textit{     Ancylostoma duodenale} & $84$ & $0$ & $0$ \\ 
+\textit{     Ascaris lumbricoides} & $84$ & $0$ & $0$ \\ 
+\textit{     Necator americanus} & $84$ & $0$ & $0$ \\ 
+\textit{     Schistosoma haematobium} & $83$ & $1$ & $1.19$ \\ 
+\textit{     Schistosoma mansoni} & $84$ & $0$ & $0$ \\ 
+\textit{     Trichuris trichiura} & $84$ & $0$ & $0$ \\ 
+$$ & $$ & $$ & $$ \\ 
+Protozoa & $$ & $$ & $$ \\ 
+\textit{     Entamoeba histolytica} & $84$ & $0$ & $0$ \\ 
+\textit{     Giardia duodenalis} & $27$ & $57$ & $67.86$ \\ 
+\hline \\[-1.8ex] 
+\end{tabular} 
+\end{table} 
+
+
+%GIARDIA PREV BY VILLAGE: TRUE POS
+\begin{table}[!htbp] \centering 
+  \caption{Real-time PCR detection of \textit{Giardia duodenalis} by village} 
+  \label{} 
+\begin{tabular}{@{\extracolsep{5pt}} lcccc} 
+\\[-1.8ex]\hline 
+\hline \\[-1.8ex] 
+Village & Negative & Positive & Percent Positive & Total \\ 
+\hline \\[-1.8ex] 
+Baba Dey & $4$ & $14$ & $77.78$ & $18$ \\ 
+Goberi Peulh & $1$ & $0$ & $0$ & $1$ \\ 
+Guillare Peulh & $5$ & $13$ & $72.22$ & $18$ \\ 
+Lissore & $1$ & $1$ & $50.00$ & $2$ \\ 
+Mounbeina Fandoga & $2$ & $14$ & $87.50$ & $16$ \\ 
+Poullo & $4$ & $9$ & $69.23$ & $13$ \\ 
+Setti I & $6$ & $3$ & $33.33$ & $9$ \\ 
+Tombo & $3$ & $0$ & $0$ & $3$ \\ 
+Were Djatame Peul & $1$ & $3$ & $75.00$ & $4$ \\ 
+Total & $27$ & $57$ & $67.86$ & $84$ \\ 
+\hline \\[-1.8ex] 
+\end{tabular} 
+\end{table} 
+
+
+%POP SUMMARY
+\begin{table}[!htbp] \centering 
+  \caption{Population summary by detection of {\emph{Giardia intesinalis}} in bulk stool} 
+  \label{} 
+\begin{tabular}{@{\extracolsep{5pt}} ccc} 
+\\[-1.8ex]\hline 
+\hline \\[-1.8ex] 
+PCR negative (Stool) & PCR positive (Stool) & Overeall \\ 
+\hline \\[-1.8ex] 
+27 & 57 & 84 \\ 
+9 & 7 & 9 \\ 
+1 (1-3.5) & 2 (1-4) & 2 (1-4) \\ 
+12 (44.4\% ) & 38 (66.7\% ) & 50 (59.5\% ) \\ 
+\hline \\[-1.8ex] 
+\end{tabular} 
+\end{table} 
+
+\begin{table}[!htbp] \centering 
+  \caption{Population summary by detection of {\emph{Giardia intesinalis}} in bulk stool} 
+  \label{} 
+\begin{tabular}{@{\extracolsep{5pt}} cccc} 
+\\[-1.8ex]\hline 
+\hline \\[-1.8ex] 
+N() Children & N() Communities & Median age (IQR) & N(\%) female \\ 
+\hline \\[-1.8ex] 
+27 & 9 & 1 (1-3.5) & 12 (44.4\% ) \\ 
+57 & 7 & 2 (1-4) & 38 (66.7\% ) \\ 
+84 & 9 & 2 (1-4) & 50 (59.5\% ) \\ 
+\hline \\[-1.8ex] 
+\end{tabular} 
+\end{table}
+
+
+\end{document}
