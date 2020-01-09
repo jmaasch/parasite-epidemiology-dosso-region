@@ -11,3 +11,5 @@ Keenan, Jeremy; Lietman, Thomas; Aiemjoy, Kristen
 **Raw data**: To request raw data, please submit an ```Issue``` on this repository containing your email address.
 
 <img src="https://github.com/jmaasch/parasite-epidemiology-dosso-region/blob/master/maps/niger_inset_map_fullname_percents.jpg" width="700" align="middle"/>
+
+Above: Prevalence rates of *Giardia duodenalis* in participating villages.
