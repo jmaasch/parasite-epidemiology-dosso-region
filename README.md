@@ -9,3 +9,5 @@ Keenan, Jeremy; Lietman, Thomas; Aiemjoy, Kristen
 *Data analysis and visualization by Jacqueline Maasch and Kristen Aiemjoy.*
 
 **Raw data**: To request raw data, please submit an ```Issue``` on this repository containing your email address.
+
+<img src="https://github.com/jmaasch/parasite-epidemiology-dosso-region/blob/master/maps/niger_inset_map_fullname_percents.jpg" width="410" align="right"/>
