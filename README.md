@@ -1,9 +1,9 @@
 # Molecular detection of intestinal helminths and protozoa among young children in Dosso Region, Niger
 
-**Goal:** To investigate the epidemiology of eukaryotic enteropathogens among communities living in
+**Project goal:** To investigate the epidemiology of eukaryotic enteropathogens among communities living in
 Dosso Region, République du Niger.
 
-**Authors:** Jacqueline R. M. A. Maasch<sup>1</sup>, Ahmed M. Arzika<sup>2</sup>, Catherine Cook<sup>3</sup>, Elodie Lebas<sup>3</sup>, Nils Pilotte<sup>1,4</sup>, Jessica R. Grant<sup>1</sup>, Steven A. Williams<sup>1, 4</sup>, Jeremy D. Keenan<sup>3</sup>, Thomas M. Lietman<sup>3</sup>, Kristen Aiemjoy<sup>3, 5</sup>
+**Study authors:** Jacqueline R. M. A. Maasch<sup>1</sup>, Ahmed M. Arzika<sup>2</sup>, Catherine Cook<sup>3</sup>, Elodie Lebas<sup>3</sup>, Nils Pilotte<sup>1,4</sup>, Jessica R. Grant<sup>1</sup>, Steven A. Williams<sup>1, 4</sup>, Jeremy D. Keenan<sup>3</sup>, Thomas M. Lietman<sup>3</sup>, Kristen Aiemjoy<sup>3, 5</sup>
 
 **Affiliations:**
 1. Department of Biological Sciences, Smith College, Northampton, MA, USA
