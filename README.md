@@ -16,9 +16,8 @@ Dosso Region, République du Niger.
 
 *Data analysis and visualization by Jacqueline Maasch and Kristen Aiemjoy.*
 
-**Analysis**: To view our data analysis, see ```/r-markdown```.
-
-**Raw data**: To request raw data, please submit an ```Issue``` on this repository containing your email address.
+* **Analysis**: All analyses were run in R v3.5.3 and can be found in ```/r-markdown```.
+* **Raw data**: To request raw data, please submit an ```Issue``` on this repository containing your email address.
 
 <img src="https://github.com/jmaasch/parasite-epidemiology-dosso-region/blob/master/maps/niger_inset_map_fullname_percents.jpg" width="700" align="middle"/>
 
