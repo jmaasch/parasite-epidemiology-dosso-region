@@ -48,7 +48,9 @@ setwd("~/Dropbox/Niger parasite epi/Data/Anthro data merge")
 ```
 
 Load data. Original Giardia merging was done in Stata, later this file was merged with anthropometric data from 
-Salesforce and Schisto data. Took clean data from swab comparison manuscript. Merged script is called "GiardiaAnthroShistoMerge.R".
+Salesforce and Schisto data. 
+Took clean data from swab comparison manuscript. 
+Merged script is called "GiardiaAnthroShistoMerge.R".
 ```{r data}
 d <- read.csv("~/Dropbox/Niger parasite epi/Data/Anthro data merge/GiardiaAnthroSchistoMerged_07.16.19.csv") %>%
   rowwise() %>%
