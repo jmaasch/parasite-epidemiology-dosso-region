@@ -47,7 +47,8 @@ setwd("~/Dropbox/Niger parasite epi/Data/Anthro data merge")
 #setwd("/Users/razel/Dropbox/Niger parasite epi/Data/")
 ```
 
-Load data. Original Giardia merging was done in Stata, later this file was merged with anthropometric data from Salesforce and Schisto data. Took clean data from swab comparison manuscript. Merged script is called "GiardiaAnthroShistoMerge.R".
+Load data. Original Giardia merging was done in Stata, later this file was merged with anthropometric data from 
+Salesforce and Schisto data. Took clean data from swab comparison manuscript. Merged script is called "GiardiaAnthroShistoMerge.R".
 ```{r data}
 d <- read.csv("~/Dropbox/Niger parasite epi/Data/Anthro data merge/GiardiaAnthroSchistoMerged_07.16.19.csv") %>%
   rowwise() %>%
@@ -191,7 +192,8 @@ smoothAgeSex <- ggplot(d, aes(x = ageM, y = as.numeric(GiardiaPos)-1)) +
 
 smoothAgeSex
 
-#ggsave("/Users/razel/Dropbox/Niger parasite epi/Data/Exported figures/prevSmooth.jpg", plot = last_plot(), width = 12, height = 6)
+#ggsave("/Users/razel/Dropbox/Niger parasite epi/Data/Exported figures/prevSmooth.jpg", 
+        plot = last_plot(), width = 12, height = 6)
 
 smoothAge <- ggplot(d, aes(x = ageM, y = as.numeric(GiardiaPos)-1)) + 
   geom_smooth() + 
@@ -217,12 +219,16 @@ Parasite prevalence table.
 #Overall.
 dPrev <- read.csv("CSV files/niger_epi_prevalence_table.csv")
 
-stargazer(dPrev, type = "latex", summary = FALSE, rownames = TRUE, column.labels = c("Species", "qPCR positive", "qPCR negative", "Percent positive"), title = "Prevalence of enteric parasites among young children in Dosso Region, Niger")
+stargazer(dPrev, type = "latex", summary = FALSE, rownames = TRUE, 
+          column.labels = c("Species", "qPCR positive", "qPCR negative", "Percent positive"), 
+          title = "Prevalence of enteric parasites among young children in Dosso Region, Niger")
 
 #Disaggregating age and sex.
 dPrevAge <- read.csv("CSV files/niger_epi_prevalence_age.csv")
 
-stargazer(dPrevAge, type = "latex", summary = FALSE, rownames = TRUE, column.labels = c("Species", "qPCR positive", "qPCR negative", "Percent positive"), title = "Prevalence of enteric parasites among young children in Dosso Region, Niger")
+stargazer(dPrevAge, type = "latex", summary = FALSE, rownames = TRUE, 
+          column.labels = c("Species", "qPCR positive", "qPCR negative", "Percent positive"), 
+          title = "Prevalence of enteric parasites among young children in Dosso Region, Niger")
 ```
 
 Age/prevalence sex results.
@@ -289,7 +295,8 @@ barAgeSex <- ggplot(dAgeSex, aes(x = age, y = truePos, fill = sex)) +
 
 barAgeSex
 
-#ggsave("/Users/razel/Dropbox/Niger parasite epi/Data/Exported figures/pos_age_sex.jpg", plot = last_plot(), width = 6, height = 6)
+#ggsave("/Users/razel/Dropbox/Niger parasite epi/Data/Exported figures/pos_age_sex.jpg", 
+        plot = last_plot(), width = 6, height = 6)
 
 barAgeSexBW <- ggplot(dAgeSex, aes(x = age, y = truePos, fill = sex)) + 
   geom_bar(stat = "identity") +
@@ -317,7 +324,8 @@ barAgeSexBW <- ggplot(dAgeSex, aes(x = age, y = truePos, fill = sex)) +
 
 barAgeSexBW 
 
-#ggsave("/Users/razel/Dropbox/Niger parasite epi/Data/Exported figures/pos_age_sex_BW.jpg", plot = last_plot(), width = 6, height = 6)
+#ggsave("/Users/razel/Dropbox/Niger parasite epi/Data/Exported figures/pos_age_sex_BW.jpg", 
+        plot = last_plot(), width = 6, height = 6)
 ```
 
 Bar chart of child age and sex with y-axis as infection prevalence rate.
@@ -377,7 +385,8 @@ barAgeSexPrev <- ggplot(dAgeSexPrev2, aes(x = ageY, y = prev, fill = gender)) +
 
 barAgeSexPrev
 
-#ggsave("/Users/razel/Dropbox/Niger parasite epi/Data/Exported figures/prev_age_sex.jpg", plot = last_plot(), width = 8, height = 6, dpi = 1000)
+#ggsave("/Users/razel/Dropbox/Niger parasite epi/Data/Exported figures/prev_age_sex.jpg", 
+        plot = last_plot(), width = 8, height = 6, dpi = 1000)
 ```
 
 Stool consistency by the modified Bristol Stool Form Scale for children (mBSFS-C).
@@ -479,11 +488,15 @@ Table1 <- cbind(Table1_a, Table1_b) %>%
 Table1  
   
 #Table1 in stargazer
-stargazer(Table1, type = "latex", summary = FALSE, rownames = FALSE, column.labels = c("Negative", "Positive", "Total"), title = "Population summary by detection of {\\emph{Giardia intesinalis}} in bulk stool")
+stargazer(Table1, type = "latex", summary = FALSE, rownames = FALSE, 
+          column.labels = c("Negative", "Positive", "Total"), 
+          title = "Population summary by detection of {\\emph{Giardia intesinalis}} in bulk stool")
 
 #Table1 in stargazer -- transposed
 Table1T <- t(Table1)
-stargazer(Table1T, type = "latex", summary = FALSE, rownames = FALSE, column.labels = c("Negative", "Positive", "Total"), title = "Population summary by detection of {\\emph{Giardia intesinalis}} in bulk stool")
+stargazer(Table1T, type = "latex", summary = FALSE, rownames = FALSE, 
+          column.labels = c("Negative", "Positive", "Total"), 
+          title = "Population summary by detection of {\\emph{Giardia intesinalis}} in bulk stool")
 ```
 
 Giardia prevalence by village.
