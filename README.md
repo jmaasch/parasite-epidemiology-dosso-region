@@ -1,8 +1,8 @@
 # Molecular detection of intestinal helminths and protozoa among young children in Dosso Region, Niger
 
-<img src="https://github.com/jmaasch/parasite-epidemiology-dosso-region/blob/master/maps/niger_inset_map_fullname_percents.jpg" width="500" align="middle"/>
+<img src="https://github.com/jmaasch/parasite-epidemiology-dosso-region/blob/master/maps/niger_inset_map_fullname_percents.jpg" width="600" align="middle"/>
 
-> Above: Prevalence rates of *Giardia duodenalis* in participating villages.
+> *Above:* Prevalence rates of *Giardia duodenalis* in participating villages.
 
 **Project goal:** To investigate the epidemiology of eukaryotic enteropathogens among communities living in
 Dosso Region, République du Niger.
