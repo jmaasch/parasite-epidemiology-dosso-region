@@ -1,8 +1,12 @@
 # Molecular detection of intestinal helminths and protozoa among young children in Dosso Region, Niger
 
+<p align="center">   
 <img src="https://github.com/jmaasch/parasite-epidemiology-dosso-region/blob/master/maps/niger_inset_map_fullname_percents.jpg" width="600" align="middle"/>
+</p>
 
 > *Above:* Prevalence rates of *Giardia duodenalis* in participating villages.
+
+## Project outline
 
 **Project goal:** To investigate the epidemiology of eukaryotic enteropathogens among communities living in
 Dosso Region, République du Niger.
@@ -16,7 +20,7 @@ Dosso Region, République du Niger.
 4. Department of Molecular and Cellular Biology, University of Massachusetts, Amherst, MA, USA
 5. Division of Infectious Diseases and Geographic Medicine, Department of Medicine, Stanford University School of Medicine, Stanford, CA, USA
 
-## Analysis
+## Data analysis
 
 *Data analysis and visualization by Jacqueline Maasch and Kristen Aiemjoy.*
 
