@@ -1,0 +1,287 @@
+---
+title: "Epidemiology of helminth and protozoan parasites in Dosso Region, Niger"
+author: "Jacqueline Maasch & Kristen Aiemjoy"
+date: "3/19/20"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+
+Load packages: tidyverse, xtable, stargazer, ggthemes, etc.
+```{r packages, echo = FALSE, message = FALSE}
+library(tidyverse)
+library(lubridate)
+library(epiR)
+library(scales)
+library(bazar)
+library(gmodels)
+library(xtable)
+library(stargazer)
+library(ggthemes)
+
+#For anthropometry and z-scores.
+library(zscorer)
+library(viridis)
+library(ggridges)
+library(lme4)
+library(lmerTest)
+
+
+```
+
+Set working directories. Set one directory to comment depending on who is working on the file.
+```{r directory}
+# Kristen: 
+setwd("~/Dropbox/_Papers/Niger parasite epi/Data")
+
+# Jaqueline:
+#setwd("/Users/razel/Dropbox/Niger parasite epi/Data/")
+```
+
+Load data. Merged file prepared in "GiardiaDataPrep_03.20.20.R".
+```{r data}
+d <- read.csv("~/Dropbox/_Papers/Niger parasite epi/Data/Anthro data merge/GiardiaAnthroSchistoMerged_03.20.20.csv") %>%
+  rowwise() %>%
+  mutate(HeightM = median(Height.1, Height.2, Height.3), 
+         WeightM = median(Weight.1, Weight.2, Weight.3)) %>%
+  ungroup() %>%
+  mutate(WeightM.kg = ifelse(Weight.Unit == "Pounds", WeightM/2.205, WeightM),
+         sex = as.numeric(fct_recode(gender, "1"="MALE", "2"="FEMALE")),
+         standing = fct_recode(Height.Method, standing="HEIGHT", supine= "LENGTH"),
+         ageD = ageM*30,
+         loosewatMother = fct_collapse(Sample.Consistency.Mother,
+                                       "loose/watery" = c("Watery", "Fluffy With Ragged Edges"),
+                                       "formed" = c("Lumpy", "Smooth Soft", "Separate Hard Lumps")),
+         stoolPos = ifelse(stool1_pos==1 | stool2_pos ==1, 1, 0))
+
+
+
+## Data for Gates Open Research
+d.gor <- d %>%
+  mutate(ID = 1:n()) %>%
+  rename(Community = vilID,
+         giardiaPos = truePos) %>%
+  mutate(schistoHPos = ifelse(is.na(St1_schisto_pos), 0, St1_schisto_pos),
+         ancylostomaPos=0,
+         ascarisPos = 0,
+         schistoMPos = 0,
+        trichurisPos = 0) %>%
+  select(ID, gender, ageY, ageM, Community, giardiaPos, schistoHPos, schistoMPos, ancylostomaPos, ascarisPos, trichurisPos,
+         Height.1, Height.2, Height.3, Height.Method, 
+  Weight.1, Weight.2, Weight.3, Weight.Unit)
+  
+write_csv(d.gor, "NigerParasitePCR.csv")
+
+```
+
+
+Anthropometry.
+```{r anthro}
+#Weight for height.
+d <- addWGSR(data = d, sex = "sex", firstPart = "WeightM.kg", 
+               secondPart = "HeightM", index = "wfh", standing="standing")
+
+#Weight for age.
+d <- addWGSR(data = d, sex = "sex", firstPart = "WeightM.kg", 
+               secondPart = "ageD", index = "wfa")
+
+#Height for age.
+d <- addWGSR(data = d, sex = "sex", firstPart = "HeightM", 
+               secondPart = "ageD", index = "hfa", standing="standing")
+
+
+# svy <- svy %>%
+#   mutate(ZCat = cut(wfhz, c(-Inf,-3, -2, -1, 0, Inf), labels=c("<-3", "-3,-2", "-2,-1", "-1,0", "0+")) ) 
+```
+
+
+Abstract results
+```{r}
+#giardia positive
+table(d$stool1_pos)
+56/86
+
+
+table(d$ageY, d$stool1_pos)
+
+15/17
+
+d %>% group_by(vilID) %>% summarise(n=n())
+
+
+```
+Results text: 
+```{r}
+
+#All villages.
+levels(d$vilID)
+
+#Mean age in months.
+summary(d$ageM)
+
+#Mean/median age in years.
+summary(d$ageY)
+
+#Number male and female.
+table(d$gender)
+
+
+Table1_b <- d %>%
+    summarize(nChildren = n(), 
+    nVil = length(unique(vilID)), 
+    MedianAge = round(median(ageY, na.rm = T), 2), 
+    Age.p25 = round(quantile(ageY, na.rm =T,  probs=.25), 2),
+    Age.p75 = round(quantile(ageY, na.rm = T, probs=.75), 2),
+    prop.female=round(100*mean(gender == "FEMALE",  na.rm=TRUE),1),
+    nFemale = sum(gender=="FEMALE", na.rm=TRUE)) %>%
+    mutate(
+    Female = paste(nFemale," (",prop.female,"% )", sep=""),
+    MedianAge = paste(MedianAge, " (", Age.p25, "-", Age.p75 , ")", sep="")) %>%
+    select(nChildren, nVil, MedianAge, Female) %>%
+    t %>% #transpose
+    as.data.frame() %>%
+    `colnames<-`(c("Overall")) 
+
+
+#paragraph 2
+d %>% group_by(vilID) %>% 
+  summarise(n= n(), 
+            nPos = sum(stool1_pos), 
+            prb = nPos/n)
+
+56/86
+
+2217/3420
+359/2217
+```
+
+
+
+
+Child growth z-score results 2.
+```{r zscore2}
+mean(d$hfaz)
+sd(d$hfaz)
+
+mean(d$wfaz)
+sd(d$wfaz)
+
+round(mean(d$wfhz), 2)
+round(sd(d$wfhz), 3)
+
+t.test(hfaz~stool1_pos, data=d)
+t.test(wfaz~stool1_pos, data=d)
+t.test(wfhz~stool1_pos, data=d)
+
+
+# library(lmerTest)
+# mod <- lmer(wfhz ~ stool1_pos + (1|vilID), data = d)
+# anova(mod)
+# summary(mod)
+
+library(geepack)
+library(broom)
+
+
+mod <- geeglm(hfaz ~ stool1_pos + ageM, id = vilID, data = d)
+broom::tidy(x = mod, conf.int = TRUE)
+
+mod <- geeglm(wfaz ~ stool1_pos + ageM, id = vilID, data = d)
+broom::tidy(x = mod, conf.int = TRUE)
+
+
+mod <- geeglm(wfhz ~ stool1_pos + ageM, id = vilID, data = d)
+broom::tidy(x = mod, conf.int = TRUE)
+```
+
+
+
+Age/prevalence sex results.
+```{r ageSexData}
+d %>% group_by(ageY, gender) %>%
+  summarise(prev = mean(truePos), 
+            n = n(),
+            se = sd(truePos)/sqrt(n),
+            lCI = prev-1.96*se, 
+            uCI = prev+1.96*se)
+
+d %>% group_by(ageY) %>%
+  summarise(prev = mean(truePos), 
+            n = n(),
+            nPos = sum(stool1_pos))
+
+(1/25)*100
+1/86
+```
+
+
+Bar chart of child age and sex with y-axis as infection prevalence rate.
+```{r}
+dAgeSexPrev2 <- d %>% 
+  group_by(ageY, gender) %>%
+  summarise(prev = (mean(truePos))*100,
+            n = n(),
+            se = sd(truePos)/sqrt(n),
+            lCI = prev-1.96*se, 
+            uCI = prev+1.96*se)
+
+dAgeSexPrev2 <- d %>% 
+  group_by(ageY, gender) %>%
+  summarise(prev =  mean(truePos, na.rm = TRUE),
+            n = n(),
+            N_notMiss = sum(!is.na(truePos)),
+            sd = sd(truePos, na.rm=TRUE)) %>%
+            mutate(SE = sd/sqrt(N_notMiss), 
+                   lowerCI = prev - 1.96*SE, 
+                   upperCI = prev + 1.96*SE,
+                   upperCI = replace(upperCI, upperCI>1, 1),
+                   lowerCI = replace(lowerCI, lowerCI<0, 0))
+
+barAgeSexPrev <- ggplot(dAgeSexPrev2, aes(x = ageY, y = prev, fill = gender)) + 
+  geom_bar(stat = "identity", position = position_dodge()) +
+  geom_errorbar(aes(ymin = lowerCI, ymax = upperCI), width = 0.2,
+                position = position_dodge(0.9), alpha = 0.5) +
+  theme_hc() +
+  theme(axis.text = element_text(size = 10), 
+        axis.title = element_text(size = 12), 
+        plot.title = element_text(size = 12, 
+                                    face = "bold", 
+                                    hjust = 0.5), 
+        legend.title = element_text(size = 10),
+        legend.direction = "vertical",
+        legend.position = "right",
+        panel.grid.major.x = element_blank()) +
+  scale_y_continuous(labels = percent, limits = c(0,1), expand = c(0,0)) +
+  labs (y= "Infection prevalence\n", 
+        x = "\nChild age in years", 
+        fill = "", 
+        title = "") +
+  scale_fill_manual(values = c("#E5DDCB", "#D1937D"), 
+                    label = c("Female", "Male")) +
+  #geom_text(aes(label = c("6/11", "10/20", "14/17", "9/11", "18/25"))) 
+  annotate("text", x = 0, y = .1, 
+           label = "6/11\n54.5%", size = 3.5, color = "black") + 
+  annotate("text", x = 1, y = .1, 
+           label = "10/20\n50.0%", size = 3.5, color = "black") + 
+  annotate("text", x = 2, y = .1, 
+           label = "14/17\n82.4%", size = 3.5, color = "black") + 
+  annotate("text", x = 3, y = .1, 
+           label = "9/11\n81.8%", size = 3.5, color = "black") + 
+  annotate("text", x = 4, y = .1, 
+           label = "18/25\n72.0%", size = 3.5, color = "black")
+
+barAgeSexPrev
+
+#ggsave("/Users/razel/Dropbox/Niger parasite epi/Data/Exported figures/prev_age_sex.jpg", plot = last_plot(), width = 8, height = 6, dpi = 1000)
+```
+
+
+
+
+
+Schisto positive individual.
+```{r schisto}
+dSchisto <- d %>%
+  filter(St1_schisto_ct != 19.41028)
+```

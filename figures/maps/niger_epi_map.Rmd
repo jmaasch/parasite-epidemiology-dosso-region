@@ -1,0 +1,496 @@
+---
+title: "EXPLORING MAPS IN R"
+author: "Jacqueline Maasch"
+date: "7/16/2019"
+output:
+  html_document:
+    df_print: paged
+subtitle: Parasite epidemiology in Dosso Region, Niger
+---
+
+Load libraries:
+library(maps)
+library(mapdata)
+library(mapproj)
+library(spData)
+library(grid)
+library(sp)
+library(dplyr)
+library(ggplot2)
+library(ggmap)
+library(ggthemes)
+library(cowplot)
+```{r setup, include = FALSE}
+#install.packages("grid", repos = "http://cran.us.r-project.org")
+
+library(maps)
+library(mapdata)
+library(mapproj)
+library(spData)
+library(grid)
+library(sp)
+library(dplyr)
+library(ggplot2)
+library(ggmap)
+library(ggthemes)
+library(cowplot)
+```
+
+Access level 2 administrative regions sp file at: https://gadm.org/download_country_v3.html
+Data hosting provided by the Center for Spatial Sciences at the University of California, Davis.
+
+Advice on usage available at: http://rforbiochemists.blogspot.com/2017/04/three-maps-of-namibia.html
+
+Explore administrative regions in base R.
+
+```{r baseR}
+nigerRegions <- readRDS("/Users/razel/Dropbox/Niger parasite epi/Data/Map/gadm36_NER_1_sp.rds")
+
+plot(nigerRegions)
+```
+
+Explore departmental boundaries in base R.
+
+```{r departments}
+nigerDept <- readRDS("/Users/razel/Dropbox/Niger parasite epi/Data/Map/gadm36_NER_2_sp.rds")
+
+plot(nigerDept)
+```
+
+Explore aesthetics in base R.
+
+```{r baseRLabels}
+plot(nigerRegions, col = 'lightgrey', border = 'darkgrey')
+title(main = "Administrative regions of Niger")
+```
+
+Label villages:
+
+BABA DEY: 12.851563 2.775743
+GOBERI PEULH: 12.9819084 2.8755067
+GUILLARE PEULH: 13.1197411 2.8491551
+LISSORE: 12.7657579 2.8753615
+MOUNBEINA FANDOGA: 13.4575975 2.9316658
+POULLO: 13.0840501 2.7768802
+SETTI I: 13.0993277 2.9772676
+TOMBO: 12.9739898 2.6858407
+WERE DJATAME PEUL: 12.8960019 2.9372924
+
+```{r villages}
+plot(nigerRegions, col = 'lightgrey', border = 'darkgrey')
+title(main = "Administrative regions of Niger")
+points(2.775743, 12.851563, col = "red") #BABA DEY
+points(2.8755067, 12.9819084, col = "red") #GOBERI PEULH
+points(2.8491551, 13.1197411, col = "red") #GUILLARE PEULH
+points(2.8753615, 12.7657579, col = "red") #LISSORE
+points(2.9316658, 13.4575975, col = "red") #MOUNBEINA FANDOGA
+points(2.7768802, 13.0840501, col = "red") #POULLO
+points(2.9772676, 13.0993277, col = "red") #SETTI I
+points(2.6858407, 12.9739898, col = "red") #TOMBO
+points(2.9372924, 12.8960019, col = "red") #WERE DJATAME PEUL
+#text(longitude, latitude, "Name")
+```
+
+Explore administrative regions in ggplot2. For ggthemes:
+https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/
+
+```{r ggplot2}
+nigerMapRegions <- ggplot() +
+  geom_polygon(data = nigerRegions,   # geom_polygon draw shape fill
+               aes(x= long,     # longitude
+                   y= lat,      # latitude
+                   group = group),
+               colour = "#C1B398",
+               fill = "#E5DDCB") +
+  theme_few() +
+  coord_fixed(ratio = 1, xlim = NULL, ylim = NULL, expand = TRUE, clip = "on") +
+  labs(title = "RÉPUBLIQUE DU NIGER\n", 
+       x = "\nLONGITUDE", 
+       y = "LATITUDE\n") + 
+  annotate("point", x = 2.1254, y = 13.5116, size = 2, colour = "#CF4647", shape = 8) + #Niamey
+  annotate("text", x = 2, y = 13.9, label = "Niamey", size = 3) #Niamey
+
+nigerMapRegions
+```
+
+Zoom to view Dosso region.
+https://stackoverflow.com/questions/18323832/plot-small-region-of-a-large-polygon-map-in-ggplot2
+
+```{r dosso}
+nigerDosso <- ggplot() +
+  geom_polygon(data = nigerRegions, #geom_polygon draw shape fill
+               aes(x= long, #longitude
+                   y= lat, #latitude
+                   group = group),
+               fill = "#E5DDCB",
+               colour = "#C1B398") +
+  theme_few() +
+  labs(title = "DOSSO REGION\n", 
+       x = "\nLONGITUDE", 
+       y = "LATITUDE\n") + 
+  coord_fixed(ratio = 1, xlim = NULL, ylim = NULL, expand = TRUE, clip = "on") +
+  coord_map(xlim = c(1.6, 5), ylim = c(11.6, 15)) +
+  annotate("text", x = 2.775743, y = 12.851563, label = "BA", size = 3) + #BABA DEY
+  annotate("text", x = 2.8755067, y = 12.9819084, label = "GO", size = 3) + #GOBERI PEULH
+  annotate("text", x = 2.87, y = 13.14, label = "GU", size = 3) + #GUILLARE PEULH, COORDS ALTERED SLIGHTLY TO MAKE LABEL MORE CLEAR
+  annotate("text", x = 2.8753615, y = 12.7657579, label = "LI", size = 3) + #LISSORE
+  annotate("text", x = 2.9316658, y = 13.4575975, label = "MO", size = 3) + #MOUNBEINA FANDOGA
+  annotate("text", x = 2.7768802, y = 13.0840501, label = "PO", size = 3) + #POULLO
+  annotate("text", x = 2.9772676, y = 13.0993277, label = "SE", size = 3) + #SETTI I
+  annotate("text", x = 2.6858407, y = 12.9739898, label = "TO", size = 3) + #TOMBO
+  annotate("text", x = 2.9372924, y = 12.8960019, label = "WE", size = 3) + #WERE DJATAME PEUL
+  annotate("point", x = 3.2081, y = 13.0505, size = 3, colour = "#CF4647", shape = 8) + #Dosso
+  annotate("text", x = 3.4, y = 13.0505, label = "Dosso", size = 3) #Dosso
+  #annotate("point", x = 2.1254, y = 13.5116, size = 3, colour = "#CF4647", shape = 8) #Niamey
+  #annotate("text", x = 2, y = 13.9, label = "Niamey", size = 3) #Niamey
+
+nigerDosso
+
+#ggsave("/Users/razel/Desktop/R_practice/niger_dosso.jpg", plot=last_plot(), width=6, height=6)
+```
+
+Grid up country-level and region-level maps.
+
+```{r mapGrid}
+nigerCountryGrid <- ggplot() +
+  geom_polygon(data = nigerRegions,   # geom_polygon draw shape fill
+               aes(x= long,     # longitude
+                   y= lat,      # latitude
+                   group = group),
+               colour = "#C1B398",
+               fill = "#E5DDCB") +
+  theme_few() +
+  coord_fixed(ratio = 1, xlim = NULL, ylim = NULL, expand = TRUE, clip = "on") +
+  labs(title = "RÉPUBLIQUE DU NIGER", 
+       x = "\nLONGITUDE", 
+       y = "LATITUDE\n") + 
+  annotate("point", x = 2.1254, y = 13.5116, size = 2, colour = "#CF4647", shape = 8) + #Niamey
+  annotate("text", x = 2, y = 13.9, label = "Niamey", size = 3) #Niamey
+
+nigerDossoGrid <- ggplot() +
+  geom_polygon(data = nigerRegions, #geom_polygon draw shape fill
+               aes(x= long, #longitude
+                   y= lat, #latitude
+                   group = group),
+               fill = "#E5DDCB",
+               colour = "#C1B398") +
+  theme_few() +
+  labs(title = "DOSSO ADMINISTRATIVE REGION, NIGER", 
+       x = "\nLONGITUDE", 
+       y = "\nLATITUDE\n") + 
+  coord_fixed(ratio = 1, xlim = NULL, ylim = NULL, expand = TRUE, clip = "on") +
+  coord_map(xlim = c(1.6, 5), ylim = c(11.6, 15)) +
+  annotate("text", x = 2.775743, y = 12.851563, label = "BA", size = 3) + #BABA DEY
+  annotate("text", x = 2.8755067, y = 12.9819084, label = "GO", size = 3) + #GOBERI PEULH
+  annotate("text", x = 2.87, y = 13.14, label = "GU", size = 3) + #GUILLARE PEULH, COORDS ALTERED SLIGHTLY TO MAKE LABEL MORE CLEAR
+  annotate("text", x = 2.8753615, y = 12.7657579, label = "LI", size = 3) + #LISSORE
+  annotate("text", x = 2.9316658, y = 13.4575975, label = "MO", size = 3) + #MOUNBEINA FANDOGA
+  annotate("text", x = 2.7768802, y = 13.0840501, label = "PO", size = 3) + #POULLO
+  annotate("text", x = 2.9772676, y = 13.0993277, label = "SE", size = 3) + #SETTI I
+  annotate("text", x = 2.6858407, y = 12.9739898, label = "TO", size = 3) + #TOMBO
+  annotate("text", x = 2.9372924, y = 12.8960019, label = "WE", size = 3) + #WERE DJATAME PEUL
+  annotate("point", x = 3.2081, y = 13.0505, size = 3, colour = "#CF4647", shape = 8) + #Dosso
+  annotate("text", x = 3.4, y = 13.0505, label = "Dosso", size = 3) #Dosso
+  #annotate("point", x = 2.1254, y = 13.5116, size = 3, colour = "#CF4647", shape = 8) #Niamey
+  #annotate("text", x = 2, y = 13.9, label = "Niamey", size = 3) #Niamey
+
+title <- ggdraw() + draw_label("", fontface = "bold")
+mapGrid <- plot_grid(nigerCountryGrid, nigerDossoGrid, labels = c("1", "2"), nrow = 1, align = "h")
+mapGrid <- plot_grid(title, mapGrid, ncol = 1, rel_heights = c(0.1, 1))
+mapGrid
+#save_plot("map_grid_horizontal.jpg", mapGrid, base_height = 6, base_width = 18)
+```
+
+Inset country-level map in upper left-hand corner of region-level map.
+
+```{r mapInset}
+nigerCountryInset <- ggplot() +
+  geom_polygon(data = nigerRegions,   # geom_polygon draw shape fill
+               aes(x= long,     # longitude
+                   y= lat,      # latitude
+                   group = group),
+               colour = "#C1B398",
+               fill = "#E5DDCB") +
+  theme_solid(fill = "white") +
+  coord_fixed(ratio = 1, xlim = NULL, ylim = NULL, expand = TRUE, clip = "on") +
+  labs(title = "", 
+       x = "", 
+       y = "") +
+  annotate("point", x = 3.2081, y = 13.0505, size = 3, colour = "#CF4647", shape = 19) #Dosso
+  #annotate("text", x = 3.4, y = 13.0505, label = "Dosso Region", size = 3) #Dosso
+
+nigerDossoInset <- ggplot() +
+  geom_polygon(data = nigerRegions, #geom_polygon draw shape fill
+               aes(x= long, #longitude
+                   y= lat, #latitude
+                   group = group),
+               fill = "#E5DDCB",
+               colour = "#C1B398") +
+  theme_few() +
+  labs(title = "", 
+       x = "\nLONGITUDE", 
+       y = "LATITUDE\n") + 
+  coord_fixed(ratio = 1, xlim = NULL, ylim = NULL, expand = TRUE, clip = "on") +
+  coord_map(xlim = c(1.6, 4.66), ylim = c(11.6, 14.66)) +
+  annotate("point", x = 2.775743, y = 12.851563, shape = 16, color = "#CF4647") + #BABA DEY
+  annotate("point", x = 2.8755067, y = 12.9819084, shape = 16, color = "#CF4647") + #GOBERI PEULH
+  annotate("point", x = 2.8491551, y = 13.1197411, shape = 16, color = "#CF4647") + #GUILLARE PEULH
+  annotate("point", x = 2.8753615, y = 12.7657579, shape = 16, color = "#CF4647") + #LISSORE
+  annotate("point", x = 2.9316658, y = 13.4575975, shape = 16, color = "#CF4647") + #MOUNBEINA FANDOGA
+  annotate("point", x = 2.7768802, y = 13.0840501, shape = 16, color = "#CF4647") + #POULLO
+  annotate("point", x = 2.9772676, y = 13.0993277, shape = 16, color = "#CF4647") + #SETTI I
+  annotate("point", x = 2.6858407, y = 12.9739898, shape = 16, color = "#CF4647") + #TOMBO
+  annotate("point", x = 2.9372924, y = 12.8960019, shape = 16, color = "#CF4647") + #WERE DJATAME PEUL
+  annotate("text", x = 2.55, y = 12.851563, label = "BA (14/18)", size = 3) +
+  annotate("text", x = 3.05, y = 12.9819084, label = "GO (0/1)", size = 3) +
+  annotate("text", x = 2.8491551, y = 13.2, label = "GU (13/18)", size = 3) +
+  annotate("text", x = 2.8753615, y = 12.7, label = "LI (1/2)", size = 3) +
+  annotate("text", x = 2.9316658, y = 13.525, label = "MO (14/16)", size = 3) +
+  annotate("text", x = 2.58, y = 13.0840501, label = "PO (9/13)", size = 3) +
+  annotate("text", x = 3.15, y = 13.0993277, label = "SE (3/9)", size = 3) +
+  annotate("text", x = 2.52, y = 12.9739898, label = "TO (0/3)", size = 3) +
+  annotate("text", x = 3.12, y = 12.8960019, label = "WE (3/4)", size = 3) +
+  #annotate("point", x = 3.2081, y = 13.0505, size = 3, colour = "#CF4647", shape = 8) + #Dosso
+  #annotate("text", x = 3.4, y = 13.0505, label = "Dosso", size = 3) #Dosso
+  annotate("point", x = 2.1254, y = 13.5116, size = 3, colour = "#CF4647", shape = 8) + #Niamey
+  annotate("text", x = 2.1254, y = 13.38, label = "Niamey", size = 3) #Niamey
+
+#With inset.
+png("niger_inset_map_percents.jpg", width = 6, height = 6, units = "in", res = 300)
+png
+grid.newpage()
+vp1 <- viewport(width = 1, height = 1, x = 0.5, y = 0.5)  #the larger map
+vp2 <- viewport(width = 0.325, height = 0.325, x = 0.325, y = 0.81)  #the inset in upper right
+print(nigerDossoInset, vp = vp1)
+print(nigerCountryInset, vp = vp2)
+dev.off()
+```
+
+TEST: Play with labels.
+
+```{r test}
+#FULL NAME LABELS
+nigerDossoInset <- ggplot() +
+  geom_polygon(data = nigerRegions, #geom_polygon draw shape fill
+               aes(x= long, #longitude
+                   y= lat, #latitude
+                   group = group),
+               fill = "#E5DDCB",
+               colour = "#C1B398") +
+  theme_few() +
+  labs(title = "", 
+       x = "\nLongitude", 
+       y = "Latitude\n") + 
+  coord_fixed(ratio = 1, xlim = NULL, ylim = NULL, expand = TRUE, clip = "on") +
+  coord_map(xlim = c(1.6, 4.66), ylim = c(11.6, 14.66)) +
+  annotate("point", x = 2.775743, y = 12.851563, shape = 16, color = "#CF4647") + #BABA DEY
+  annotate("point", x = 2.8755067, y = 12.9819084, shape = 16, color = "#CF4647") + #GOBERI PEULH
+  annotate("point", x = 2.8491551, y = 13.1197411, shape = 16, color = "#CF4647") + #GUILLARE PEULH
+  annotate("point", x = 2.8753615, y = 12.7657579, shape = 16, color = "#CF4647") + #LISSORE
+  annotate("point", x = 2.9316658, y = 13.4575975, shape = 16, color = "#CF4647") + #MOUNBEINA FANDOGA
+  annotate("point", x = 2.7768802, y = 13.0840501, shape = 16, color = "#CF4647") + #POULLO
+  annotate("point", x = 2.9772676, y = 13.0993277, shape = 16, color = "#CF4647") + #SETTI I
+  annotate("point", x = 2.6858407, y = 12.9739898, shape = 16, color = "#CF4647") + #TOMBO
+  annotate("point", x = 2.9372924, y = 12.8960019, shape = 16, color = "#CF4647") + #WERE DJATAME PEUL
+  annotate("text", x = 2.45, y = 12.851563, label = "Baba Dey (14/18)", size = 3) +
+  annotate("text", x = 3.23, y = 12.9819084, label = "Goberi Peulh (0/1)", size = 3) +
+  annotate("text", x = 2.8491551, y = 13.2, label = "Guillare Peulh (13/18)", size = 3) +
+  annotate("text", x = 2.8753615, y = 12.7, label = "Lissore (1/2)", size = 3) +
+  annotate("text", x = 2.9316658, y = 13.53, label = "Mounbeina Fandoga (14/16)", size = 3) +
+  annotate("text", x = 2.52, y = 13.0840501, label = "Poullo (9/13)", size = 3) +
+  annotate("text", x = 3.2, y = 13.0993277, label = "Setti I (3/9)", size = 3) +
+  annotate("text", x = 2.45, y = 12.9739898, label = "Tombo (0/3)", size = 3) +
+  annotate("text", x = 3.4, y = 12.8960019, label = "Were Djatame Peul (3/4)", size = 3) +
+  #annotate("point", x = 3.2081, y = 13.0505, size = 3, colour = "#CF4647", shape = 8) + #Dosso
+  #annotate("text", x = 3.4, y = 13.0505, label = "Dosso", size = 3) #Dosso
+  annotate("point", x = 2.1254, y = 13.5116, size = 3, colour = "#CF4647", shape = 8) + #Niamey
+  annotate("text", x = 2.1254, y = 13.38, label = "Niamey", size = 3) #Niamey
+
+#PRINT.
+png("niger_inset_map_fullname_ratio.jpg", width = 6, height = 6, units = "in", res = 300)
+png
+grid.newpage()
+vp1 <- viewport(width = 1, height = 1, x = 0.5, y = 0.5)  #the larger map
+vp2 <- viewport(width = 0.325, height = 0.325, x = 0.325, y = 0.81)  #the inset in upper right
+print(nigerDossoInset, vp = vp1)
+print(nigerCountryInset, vp = vp2)
+dev.off()
+```
+
+TEST2: Play with labels.
+
+```{r test2}
+#PERCENT / INITIALS LABELS
+
+nigerDossoInset <- ggplot() +
+  geom_polygon(data = nigerRegions, #geom_polygon draw shape fill
+               aes(x= long, #longitude
+                   y= lat, #latitude
+                   group = group),
+               fill = "#E5DDCB",
+               colour = "#C1B398") +
+  theme_few() +
+  labs(title = "", 
+       x = "\nLONGITUDE", 
+       y = "LATITUDE\n") + 
+  coord_fixed(ratio = 1, xlim = NULL, ylim = NULL, expand = TRUE, clip = "on") +
+  coord_map(xlim = c(1.6, 4.66), ylim = c(11.6, 14.66)) +
+  annotate("point", x = 2.775743, y = 12.851563, shape = 16, color = "#CF4647") + #BABA DEY
+  annotate("point", x = 2.8755067, y = 12.9819084, shape = 16, color = "#CF4647") + #GOBERI PEULH
+  annotate("point", x = 2.8491551, y = 13.1197411, shape = 16, color = "#CF4647") + #GUILLARE PEULH
+  annotate("point", x = 2.8753615, y = 12.7657579, shape = 16, color = "#CF4647") + #LISSORE
+  annotate("point", x = 2.9316658, y = 13.4575975, shape = 16, color = "#CF4647") + #MOUNBEINA FANDOGA
+  annotate("point", x = 2.7768802, y = 13.0840501, shape = 16, color = "#CF4647") + #POULLO
+  annotate("point", x = 2.9772676, y = 13.0993277, shape = 16, color = "#CF4647") + #SETTI I
+  annotate("point", x = 2.6858407, y = 12.9739898, shape = 16, color = "#CF4647") + #TOMBO
+  annotate("point", x = 2.9372924, y = 12.8960019, shape = 16, color = "#CF4647") + #WERE DJATAME PEUL
+  annotate("text", x = 2.42, y = 12.851563, label = "BA (14/18, 77.8%)", size = 3) +
+  annotate("text", x = 3.15, y = 12.9819084, label = "GO (0/1, 0%)", size = 3) +
+  annotate("text", x = 2.8491551, y = 13.2, label = "GU (13/18, 72.2%)", size = 3) +
+  annotate("text", x = 2.8753615, y = 12.7, label = "LI (1/2, 50.0%)", size = 3) +
+  annotate("text", x = 2.9316658, y = 13.525, label = "MO (14/16, 87.5%)", size = 3) +
+  annotate("text", x = 2.44, y = 13.0840501, label = "PO (9/13, 69.2%)", size = 3) +
+  annotate("text", x = 3.29, y = 13.0993277, label = "SE (3/9, 33.3%)", size = 3) +
+  annotate("text", x = 2.42, y = 12.9739898, label = "TO (0/3, 0%)", size = 3) +
+  annotate("text", x = 3.26, y = 12.8960019, label = "WE (3/4, 75.0%)", size = 3) +
+  #annotate("point", x = 3.2081, y = 13.0505, size = 3, colour = "#CF4647", shape = 8) + #Dosso
+  #annotate("text", x = 3.4, y = 13.0505, label = "Dosso", size = 3) #Dosso
+  annotate("point", x = 2.1254, y = 13.5116, size = 3, colour = "#CF4647", shape = 8) + #Niamey
+  annotate("text", x = 2.1254, y = 13.38, label = "Niamey", size = 3) #Niamey
+
+#PRINT.
+png("niger_inset_map_initials_percents.jpg", width = 6, height = 6, units = "in", res = 300)
+png
+grid.newpage()
+vp1 <- viewport(width = 1, height = 1, x = 0.5, y = 0.5)  #the larger map
+vp2 <- viewport(width = 0.325, height = 0.325, x = 0.325, y = 0.81)  #the inset in upper right
+print(nigerDossoInset, vp = vp1)
+print(nigerCountryInset, vp = vp2)
+dev.off()
+```
+
+TEST3: Play with labels.
+
+```{r test3}
+#FULL NAME LABELS
+nigerDossoInset <- ggplot() +
+  geom_polygon(data = nigerRegions, #geom_polygon draw shape fill
+               aes(x= long, #longitude
+                   y= lat, #latitude
+                   group = group),
+               fill = "#E5DDCB",
+               colour = "#C1B398") +
+  theme_few() +
+  labs(title = "", 
+       x = "\nLongitude", 
+       y = "Latitude\n") + 
+  coord_fixed(ratio = 1, xlim = NULL, ylim = NULL, expand = TRUE, clip = "on") +
+  coord_map(xlim = c(1.6, 4.66), ylim = c(11.6, 14.66)) +
+  annotate("point", x = 2.775743, y = 12.851563, shape = 16, color = "#CF4647") + #BABA DEY
+  annotate("point", x = 2.8755067, y = 12.9819084, shape = 16, color = "#CF4647") + #GOBERI PEULH
+  annotate("point", x = 2.8491551, y = 13.1197411, shape = 16, color = "#CF4647") + #GUILLARE PEULH
+  annotate("point", x = 2.8753615, y = 12.7657579, shape = 16, color = "#CF4647") + #LISSORE
+  annotate("point", x = 2.9316658, y = 13.4575975, shape = 16, color = "#CF4647") + #MOUNBEINA FANDOGA
+  annotate("point", x = 2.7768802, y = 13.0840501, shape = 16, color = "#CF4647") + #POULLO
+  annotate("point", x = 2.9772676, y = 13.0993277, shape = 16, color = "#CF4647") + #SETTI I
+  annotate("point", x = 2.6858407, y = 12.9739898, shape = 16, color = "#CF4647") + #TOMBO
+  annotate("point", x = 2.9372924, y = 12.8960019, shape = 16, color = "#CF4647") + #WERE DJATAME PEU
+  annotate("text", x = 2.3, y = 12.851563, label = "Baba Dey (16/18, 88.9%)", size = 3) +
+  annotate("text", x = 3.31, y = 12.9819084, label = "Goberi Peulh (0/1, 0%)", size = 3) +
+  annotate("text", x = 2.8491551, y = 13.25, label = "Guillare Peulh\n(9/18, 50.0%)", size = 3) +
+  annotate("text", x = 2.8753615, y = 12.65, label = "Lissore\n(1/2, 50.0%)", size = 3) +
+  annotate("text", x = 2.9316658, y = 13.58, label = "Mounbeina Fandoga\n(14/16, 87.5%)", size = 3) +
+  annotate("text", x = 2.4, y = 13.0840501, label = "Poullo (10/14, 71.4%)", size = 3) +
+  annotate("text", x = 3.34, y = 13.0993277, label = "Setti I (3/10, 30.0%)", size = 3) +
+  annotate("text", x = 2.35, y = 12.9739898, label = "Tombo (0/3, 0%)", size = 3) +
+  annotate("text", x = 3.53, y = 12.8960019, label = "Were Djatame Peul (3/4, 75.0%)", size = 3) +
+  #annotate("point", x = 3.2081, y = 13.0505, size = 3, colour = "#CF4647", shape = 8) + #Dosso
+  #annotate("text", x = 3.4, y = 13.0505, label = "Dosso", size = 3) #Dosso
+  annotate("point", x = 2.1254, y = 13.5116, size = 3, colour = "#CF4647", shape = 8) + #Niamey
+  annotate("text", x = 2.1254, y = 13.38, label = "Niamey", size = 3) #Niamey
+
+#PRINT.
+png("niger_inset_map_update_small.jpg", width = 6, height = 6, units = "in", res = 200)
+png
+grid.newpage()
+vp1 <- viewport(width = 1, height = 1, x = 0.5, y = 0.5)  #the larger map
+vp2 <- viewport(width = 0.325, height = 0.325, x = 0.325, y = 0.81)  #the inset in upper right
+print(nigerDossoInset, vp = vp1)
+print(nigerCountryInset, vp = vp2)
+dev.off()
+```
+
+Add figure caption.
+
+```{r caption}
+nigerRegionsDF <- as.data.frame(nigerRegions)
+
+nigerDossoCaption <- nigerDossoInset +
+  labs(caption = "BA: Baba Dey (14/18, 77.8%)\n GO: Goberi Peulh (0/1, 0%)\n Guillare Peulh (11/18, 61.1%)") +
+  geom_polygon(data = subset(nigerRegions, NAME_1 %in% c("Dosso")),
+               aes(group = group),
+               size = 1,
+               color = "white",
+               fill = "white",
+               x = 4,
+               y = 4)
+
+nigerDossoCaption
+
+#With grid.
+png("niger_inset_map_caption.jpg", width = 6, height = 6, units = "in", res = 300)
+png
+grid.newpage()
+vp1 <- viewport(width = 1, height = 1, x = 0.5, y = 0.5)  #the larger map
+vp2 <- viewport(width = 0.35, height = 0.35, x = 0.33, y = 0.8)  #the inset in upper right
+print(nigerDossoCaption, vp = vp1)
+print(nigerCountryInset, vp = vp2)
+dev.off()
+```
+
+Failed attempts at insetting map (spatial dataframe incompatible).
+
+```{r failed}
+#With cowplot.
+#nigerInset <- ggdraw() +
+  #draw_plot(nigerDosso) +
+  #draw_plot(nigerRegions, x = 0.07, y = .7, width = .3, height = .3)
+
+#ggsave(filename = "nigerInset.jpg", 
+       #plot = plot.with.inset,
+       #width = 17, 
+       #height = 12,
+       #units = "cm",
+       #dpi = 300)
+
+#With egg.
+#nigerInset <- nigerDosso +
+  #annotation_custom(ggplotGrob(nigerRegions), 
+                    #xmin = 5, xmax = 7, 
+                    #ymin = 30, ymax = 44)
+
+#With USGS AddInsetMap function.
+#AddInsetMap(nigerRegions, width = 2, main.label = list("Dosso"),
+                     #sub.label = list("Map area"), loc = "topright")
+```
+
+Explore mapData dataframes.
+
+```{r mapData}
+niger <- map_data("worldHires", region = "Niger")
+
+nigerMap <- ggplot() +
+  geom_polygon(data = niger,   # geom_polygon draw shape fill
+               aes(x= long,     # longitude
+                   y= lat,      # latitude
+                   group = group),
+               fill = "gray88") +
+  theme_few() +
+  coord_fixed(ratio = 1, xlim = NULL, ylim = NULL, expand = TRUE, clip = "on")
+
+nigerMap
+
+#spData dataframes.
+#afcon
+#worldbank_df
+```
