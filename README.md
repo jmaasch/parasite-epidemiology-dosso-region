@@ -1,7 +1,7 @@
 # Molecular detection of intestinal helminths and protozoa among young children in Dosso Region, Niger
 
 <p align="center">   
-<img src="https://github.com/jmaasch/parasite-epidemiology-dosso-region/blob/master/maps/niger_inset_map_fullname_percents.jpg" width="500" align="middle"/>
+<img src="https://github.com/jmaasch/parasite-epidemiology-dosso-region/blob/master/figures/maps/Figure1.ParasiteEpiManuscript_small.jpg" width="500" align="middle"/>
 </p>
 
 > *Above:* Prevalence rates of *Giardia duodenalis* in participating villages.
