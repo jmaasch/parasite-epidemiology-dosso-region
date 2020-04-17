@@ -8,8 +8,6 @@
 
 ## Project outline
 
-*A manuscript resulting from this project has been submitted for peer review.*
-
 **Project goal:** To investigate the epidemiology of eukaryotic enteropathogens among communities living in
 Dosso Region, République du Niger.
 
