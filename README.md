@@ -4,7 +4,7 @@
 <img src="https://github.com/jmaasch/parasite-epidemiology-dosso-region/blob/master/figures/maps/Figure1.ParasiteEpiManuscript_small.jpg" width="600" align="middle"/>
 </p>
 
-> *Above:* Prevalence rates of *Giardia duodenalis* in participating villages.
+> *Above:* Prevalence rates of *Giardia duodenalis* in participating villages. Figure by JRMA Maasch.
 
 ## Project outline
 
