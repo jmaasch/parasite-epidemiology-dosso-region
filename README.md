@@ -8,7 +8,7 @@
 
 ## Project outline
 
-**Resulting publications:** A paper resulting from this project can be found at [Gates Open Research.] (https://gatesopenresearch.org/articles/4-38/v1)
+**Resulting publications:** A paper resulting from this project can be found at [Gates Open Research.](https://gatesopenresearch.org/articles/4-38/v1)
 
 **Project goal:** To investigate the epidemiology of eukaryotic enteropathogens among communities living in
 Dosso Region, République du Niger.
