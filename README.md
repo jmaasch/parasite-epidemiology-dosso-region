@@ -8,7 +8,7 @@
 
 ## Project outline
 
-**Resulting publications:** A paper resulting from this project can be found at [Gates Open Research.](https://gatesopenresearch.org/articles/4-38/v1) Results were presented at the American Society of Tropical Medicine & Hygiene [68th Annual Meeting](https://www.researchgate.net/publication/337447361_Rectal_swabs_for_molecular_detection_of_Giardia_duodenalis) (November 2019, National Harbor, Maryland USA) in a poster titled *Rectal swabs for molecular detection of Giardia duodenalis.*
+**Resulting publications:** A paper resulting from this project can be found at [Gates Open Research.](https://gatesopenresearch.org/articles/4-38/v1) Results were presented at the [American Society of Tropical Medicine & Hygiene](https://www.researchgate.net/publication/337447361_Rectal_swabs_for_molecular_detection_of_Giardia_duodenalis) 68th Annual Meeting (November 2019, National Harbor, Maryland USA) in a poster titled *Rectal swabs for molecular detection of Giardia duodenalis.*
 
 **Project goal:** To investigate the epidemiology of eukaryotic enteropathogens among communities living in
 Dosso Region, République du Niger.
