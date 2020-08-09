@@ -33,10 +33,10 @@ library(lmerTest)
 Set working directories. Set one directory to comment depending on who is working on the file.
 ```{r directory}
 # Kristen: 
-setwd("~/Dropbox/_Papers/Niger parasite epi/Data")
+#setwd(redacted)
 
 # Jaqueline:
-#setwd("/Users/razel/Dropbox/Niger parasite epi/Data/")
+#setwd(redacted)
 ```
 
 Load data. Merged file prepared in "GiardiaDataPrep_03.20.20.R".
